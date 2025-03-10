@@ -21,7 +21,6 @@ const Home = () => {
                     </li>
 
                     {/* Show Dashboard Link Based on Role */}
-               
                         <li>
                             <Link
                                 to={user?.role === "admin" ? "/dashboard" : "/user-dashboard"}
@@ -31,7 +30,7 @@ const Home = () => {
                             </Link>
                         </li>
 
-                        {!isLoggedIn && (
+                    {!isLoggedIn && (
                         <li>
                             <Link to="/register" style={styles.navLink}>Register</Link>
                         </li>
