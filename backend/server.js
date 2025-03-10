@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import connectDB from './db.js'
 import authRoutes from './routes/authRoutes.js'; 
+import userRoutes from './routes/userRoutes.js'; 
 import adminRoutes from './routes/adminRoutes.js'; 
 
 connectDB();
@@ -18,6 +19,7 @@ app.use(morgan("dev"));
 
 app.use("/api/auth", authRoutes); // Use Auth Routes
 app.use("/api/admin", adminRoutes); // Use Admin Routes
+app.use("/api/users", userRoutes);
 
 app.get("/", (req, res) => {
   res.send("API is running...");

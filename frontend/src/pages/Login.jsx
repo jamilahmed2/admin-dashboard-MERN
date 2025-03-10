@@ -1,0 +1,88 @@
+import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../features/auth/authSlice.jsx";
+import { useNavigate } from "react-router-dom";
+
+// Add these styles in a separate CSS file or use inline styles
+const styles = {
+    container: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh'
+    },
+    form: {
+        backgroundColor: 'grey',
+        padding: '24px',
+        borderRadius: '4px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        width: '320px'
+    },
+    title: {
+        fontSize: '20px',
+        fontWeight: 'bold',
+        marginBottom: '16px'
+    },
+    error: {
+        color: 'red'
+    },
+    input: {
+        width: '100%',
+        padding: '8px',
+        marginBottom: '8px',
+        border: '1px solid #ddd'
+    },
+    button: {
+        width: '100%',
+        padding: '8px',
+        backgroundColor: '#3b82f6',
+        color: 'grey',
+        border: 'none',
+        cursor: 'pointer'
+    }
+};
+
+const Login = () => {
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { user, loading, error } = useSelector((state) => state.auth);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        dispatch(loginUser({ email, password })).then((res) => {
+            if (res.meta.requestStatus === "fulfilled") navigate("/dashboard");
+        });
+    };
+
+    return (
+        <div style={styles.container}>
+            <form onSubmit={handleSubmit} style={styles.form}>
+                <h2 style={styles.title}>Login</h2>
+                {error && <p style={styles.error}>{error}</p>}
+                <input
+                    type="email"
+                    placeholder="Email"
+                    style={styles.input}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    style={styles.input}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                />
+                <button style={styles.button} type="submit" disabled={loading}>
+                    {loading ? "Logging in..." : "Login"}
+                </button>
+            </form>
+        </div>
+    );
+};
+
+export default Login;
