@@ -1,12 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { loginUser, registerUser } from "../../actions/authActions.jsx";
-import { updateAdminProfileAction, updateAdminPasswordAction } from '../../actions/adminActions.jsx'
+import { updateAdminProfileAction, updateAdminPasswordAction, getAllUsersAction, deleteUserAction } from '../../actions/adminActions.jsx'
 import { updateUserProfileAction, updateUserPasswordAction } from '../../actions/userActions.jsx'
 
 const initialState = {
     user: JSON.parse(localStorage.getItem("user")) || null,
     isAuthenticated: !!localStorage.getItem("user"),
     isLoading: false,
+    totalUsers: [],
     error: null
 };
 
@@ -22,6 +23,7 @@ const authSlice = createSlice({
         },
         logout: (state) => {
             state.user = null;
+            state.totalUsers = [];
             state.isAuthenticated = false;
             localStorage.removeItem("user");
         },
@@ -52,20 +54,38 @@ const authSlice = createSlice({
                 state.user = action.payload;
                 state.isAuthenticated = true;
                 state.error = null;
-                localStorage.setItem("user", JSON.stringify(action.payload));
             })
             .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.error = action.payload;
             })
             .addCase(updateAdminProfileAction.fulfilled, (state, action) => {
-                state.admin = { ...state.admin, ...action.payload };
+                state.user = { ...state.user, ...action.payload };
             })
             .addCase(updateUserProfileAction.fulfilled, (state, action) => {
                 state.user = { ...state.user, ...action.payload };
-            });
+            })
+            .addCase(getAllUsersAction.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(getAllUsersAction.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.totalUsers = Array.isArray(action.payload.users) ? action.payload.users : []; // ✅ Ensure it's an array
+            })
+            .addCase(getAllUsersAction.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            })
+            .addCase(deleteUserAction.fulfilled, (state, action) => {
+                state.totalUsers = state.totalUsers.filter(user => user._id !== action.payload);
+            })
+            .addCase(deleteUserAction.rejected, (state, action) => {
+                state.error = action.payload;
+            })
+            
     },
 });
-export { registerUser, loginUser, updateAdminProfileAction, updateAdminPasswordAction, updateUserProfileAction, updateUserPasswordAction };
+export { registerUser, loginUser, updateAdminProfileAction, updateAdminPasswordAction, updateUserProfileAction, updateUserPasswordAction, getAllUsersAction,deleteUserAction };
 export const { logout } = authSlice.actions;
 export default authSlice.reducer;

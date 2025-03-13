@@ -52,7 +52,7 @@ const Login = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         dispatch(loginUser({ email, password })).then((res) => {
-            if (res.meta.requestStatus === "fulfilled") navigate("/dashboard");
+            if (res.meta.requestStatus === "fulfilled") navigate("/");
         });
     };
 

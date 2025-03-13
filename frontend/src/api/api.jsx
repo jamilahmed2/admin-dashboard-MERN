@@ -22,6 +22,8 @@ export const updateUserProfile = (userData) => API.put("/users/update-profile", 
 export const updatePassword = (passwordData) => API.put("/users/update-password", passwordData);
 
 // Admin API Calls
+export const getAllUsers = () => API.get("/admin/getAllUsers");
+export const deleteUser = (id) => API.delete(`/admin/deleteUser/${id}`);
 export const updateAdminProfile = (adminData) => API.put("/admin/updateAdminProfile", adminData);
 export const updateAdminPassword = (passwordData) => API.put("/admin/updateAdminPassword", passwordData);
 

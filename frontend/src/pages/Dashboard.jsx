@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { logout, updateAdminProfileAction, updateAdminPasswordAction } from "../features/auth/authSlice.jsx";
+import { getAllUsersAction, deleteUserAction, updateAdminProfileAction, updateAdminPasswordAction, logout } from "../features/auth/authSlice.jsx";
 
 
 const AdminDashboard = () => {
-    const { user, loading, error } = useSelector((state) => state.auth);
+    const { user, totalUsers, loading, error } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [name, setName] = useState(user?.name || "");
@@ -13,6 +13,13 @@ const AdminDashboard = () => {
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [message, setMessage] = useState("");
+
+    useEffect(() => {
+        if (user && user.role === "admin") {
+            // console.log("Admin logged in, fetching users");
+            dispatch(getAllUsersAction());
+        }
+    }, [user, dispatch]);
 
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
@@ -39,7 +46,16 @@ const AdminDashboard = () => {
         });
     };
 
+    const handleDeleteUser = (userId) => {
+        if (userId === user._id && user.role === "admin") {
+            alert("You cannot delete your own account!");
+            return;
+        }
 
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            dispatch(deleteUserAction(userId));
+        }
+    };
 
     if (user?.role !== "admin") {
         return <h1 style={styles.accessDenied}>Access Denied! Admins Only</h1>;
@@ -71,6 +87,34 @@ const AdminDashboard = () => {
 
             {error && <p style={styles.error}>{error}</p>}
             {message && <p style={styles.success}>{message}</p>}
+
+            <div style={styles.statsSection}>
+                <h2>User Management</h2>
+                <p>Total Users: {totalUsers?.length || 0}</p>
+
+                {loading ? (
+                    <p>Loading users...</p>
+                ) : (
+                    <div style={styles.userListContainer}>
+                        {Array.isArray(totalUsers) && totalUsers.length > 0 ? (
+                            <ul style={styles.userList}>
+                                {totalUsers.map((user) => (
+                                    <li key={user._id} style={styles.userItem}>
+                                        <strong>{user.name}</strong> - {user.email} ({user.role})
+                                        {user.role !== "admin" && (
+                                            <button onClick={() => handleDeleteUser(user._id)} style={styles.deleteButton}>
+                                                Delete
+                                            </button>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p>No users found</p>
+                        )}
+                    </div>
+                )}
+            </div>
 
             {/* Profile Update Form */}
             <form onSubmit={handleProfileUpdate} style={styles.form}>
@@ -158,6 +202,23 @@ const styles = {
     emailText: {
         fontSize: "16px",
         color: "#d1d5db",
+    },
+    userListContainer: {
+        maxHeight: "200px",
+        overflowY: "auto",
+        marginTop: "10px",
+        padding: "10px",
+        backgroundColor: "#1f2937",
+        borderRadius: "4px",
+    },
+    userList: {
+        listStyleType: "none",
+        padding: 0,
+        margin: 0,
+    },
+    userItem: {
+        padding: "8px 0",
+        borderBottom: "1px solid #4b5563",
     },
     error: {
         color: "red",

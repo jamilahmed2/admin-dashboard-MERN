@@ -18,16 +18,31 @@ function App() {
           {/* Protected Routes Based on Role */}
           <Route
             path="/dashboard"
-            element={user?.role === "admin" ? <Dashboard /> : <Navigate to="/" />}
+            element={
+              user ? (
+                user.role === "admin" ? <Dashboard /> : <Navigate to="/user-dashboard" />
+              ) : (
+                <Navigate to="/login" /> // Redirect if not logged in
+              )
+            }
           />
           <Route
             path="/user-dashboard"
-            element={user?.role === "user" ? <UserDashboard /> : <Navigate to="/" />}
+            element={
+              user ? (
+                user.role === "user" ? <UserDashboard /> : <Navigate to="/dashboard" />
+              ) : (
+                <Navigate to="/login" /> // Redirect if not logged in
+              )
+            }
           />
 
           {/* Auth Routes */}
-          <Route path="/register" element={<Register />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
+          <Route
+            path="/login"
+            element={!user ? <Login /> : user.role === "admin" ? <Navigate to="/dashboard" /> : <Navigate to="/user-dashboard" />}
+          />
 
           {/* Redirect unknown routes to Home */}
           <Route path="*" element={<Navigate to="/" />} />

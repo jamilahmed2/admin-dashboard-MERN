@@ -1,13 +1,15 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-
+import { logout } from '../features/auth/authSlice';
+import { useDispatch } from 'react-redux';
 const Home = () => {
     const isLoggedIn = localStorage.getItem('user');
     const user = isLoggedIn ? JSON.parse(localStorage.getItem('user')) : null;
     const navigate = useNavigate();
-
+    const dispatch = useDispatch();
     const handleLogout = () => {
         localStorage.removeItem('user');
+        dispatch(logout())
         navigate('/');
     };
 
@@ -21,14 +23,17 @@ const Home = () => {
                     </li>
 
                     {/* Show Dashboard Link Based on Role */}
+                    {user && (
                         <li>
                             <Link
-                                to={user?.role === "admin" ? "/dashboard" : "/user-dashboard"}
+                                to={user.role === "admin" ? "/dashboard" : "/user-dashboard"}
                                 style={styles.navLink}
                             >
-                                Dashboard
+                                {user.role === "admin" ? "Admin Dashboard" : "User Dashboard"}
                             </Link>
                         </li>
+                    )}
+
 
                     {!isLoggedIn && (
                         <li>

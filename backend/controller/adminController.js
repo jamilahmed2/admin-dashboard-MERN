@@ -3,6 +3,37 @@ import bcrypt from "bcryptjs";
 import dotenv from 'dotenv';
 dotenv.config();
 
+
+// fetch total users and their details
+export const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({}, { password: 0 }); // Exclude passwords
+        if (!users.length) {
+            return res.status(404).json({ message: "No users found" });
+        }
+        res.status(200).json({ totalUsers: users.length, users });
+    } catch (error) {
+        res.status(500).json({ message: "Server error: Unable to fetch users" });
+    }
+};
+
+export const deleteUser = async (req, res) => {
+    try {
+        // console.log("Delete request received for user ID:", req.params.id); // Debug log
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        await user.deleteOne();
+        res.json({ message: "User deleted successfully" });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+
 // Update Admin Profile (Name, Email)
 export const updateAdminProfile = async (req, res) => {
     if (req.user.role !== "admin") {
