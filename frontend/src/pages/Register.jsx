@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser } from "../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const styles = {
     container: {
@@ -61,7 +61,7 @@ const Register = () => {
             }
         }
     }, []);
-    
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -84,6 +84,7 @@ const Register = () => {
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                 </select>
+                <Link to="/login" style={{  margin: '50px', color:"white",}}>Already have an account? Login</Link>
                 <button style={styles.button} type="submit" disabled={loading}>
                     {loading ? "Registering..." : "Register"}
                 </button>

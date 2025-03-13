@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 // Add these styles in a separate CSS file or use inline styles
 const styles = {
@@ -77,6 +77,7 @@ const Login = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                 />
+                <Link to="/register" style={{ marginBottom: '16px', display: 'block', color: 'white' }}>Don't have an account?</Link>
                 <button style={styles.button} type="submit" disabled={loading}>
                     {loading ? "Logging in..." : "Login"}
                 </button>
