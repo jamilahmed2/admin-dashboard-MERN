@@ -1,33 +1,36 @@
 import { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { logout, updateAdminProfile, updateAdminPassword } from "../features/auth/authSlice";
+import { useNavigate } from "react-router-dom";
+import { logout, updateAdminProfileAction, updateAdminPasswordAction } from "../features/auth/authSlice.jsx";
+
 
 const AdminDashboard = () => {
     const { user, loading, error } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
-
-    const [name, setName] = useState(user.name);
-    const [email, setEmail] = useState(user.email);
+    const navigate = useNavigate();
+    const [name, setName] = useState(user?.name || "");
+    const [email, setEmail] = useState(user?.email || "");
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [message, setMessage] = useState("");
 
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
-        const resultAction = await dispatch(updateAdminProfile({ name, email }));
-    
-        if (updateAdminProfile.fulfilled.match(resultAction)) {
+        const resultAction = await dispatch(updateAdminProfileAction({ name, email }));
+
+        if (updateAdminProfileAction.fulfilled.match(resultAction)) {
             const updatedAdmin = { ...user, name, email }; // Update the admin details in Redux state
+            dispatch({ type: "auth/updatedAdmin", payload: updatedAdmin }); // Update admin data in Redux state
             localStorage.setItem("user", JSON.stringify(updatedAdmin)); // Store updated admin data in localStorage
-            dispatch({ type: "auth/updateAdmin", payload: updatedAdmin }); // Update Redux manually
+            setMessage("Password updated successfully");
+
         }
     };
-    
-    
+
 
     const handlePasswordChange = (e) => {
         e.preventDefault();
-        dispatch(updateAdminPassword({ currentPassword, newPassword })).then((res) => {
+        dispatch(updateAdminPasswordAction({ currentPassword, newPassword })).then((res) => {
             if (res.meta.requestStatus === "fulfilled") {
                 setMessage("Password updated successfully");
                 setCurrentPassword("");
@@ -36,19 +39,24 @@ const AdminDashboard = () => {
         });
     };
 
-    const handleLogout = () => {
-        dispatch(logout());
-    };
+
 
     if (user?.role !== "admin") {
         return <h1 style={styles.accessDenied}>Access Denied! Admins Only</h1>;
     }
 
+    const handleLogout = () => {
+
+        dispatch(logout());
+        navigate('/')
+
+    };
+
     return (
         <div style={styles.container}>
             <div style={styles.header}>
                 <h1 style={styles.title}>Admin Dashboard</h1>
-                <button 
+                <button
                     onClick={handleLogout}
                     style={styles.logoutButton}
                     onMouseOver={(e) => e.target.style.backgroundColor = '#dc2626'}
@@ -66,21 +74,21 @@ const AdminDashboard = () => {
 
             {/* Profile Update Form */}
             <form onSubmit={handleProfileUpdate} style={styles.form}>
-                <input 
-                    type="text" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    placeholder="Name" 
+                <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name"
                     style={styles.input}
-                    required 
+                    required
                 />
-                <input 
-                    type="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    placeholder="Email" 
+                <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
                     style={styles.input}
-                    required 
+                    required
                 />
                 <button type="submit" style={styles.updateButton} disabled={loading}>
                     {loading ? "Updating..." : "Update Profile"}
@@ -89,21 +97,21 @@ const AdminDashboard = () => {
 
             {/* Password Change Form */}
             <form onSubmit={handlePasswordChange} style={styles.form}>
-                <input 
-                    type="password" 
-                    value={currentPassword} 
-                    onChange={(e) => setCurrentPassword(e.target.value)} 
-                    placeholder="Current Password" 
+                <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder="Current Password"
                     style={styles.input}
-                    required 
+                    required
                 />
-                <input 
-                    type="password" 
-                    value={newPassword} 
-                    onChange={(e) => setNewPassword(e.target.value)} 
-                    placeholder="New Password" 
+                <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="New Password"
                     style={styles.input}
-                    required 
+                    required
                 />
                 <button type="submit" style={styles.updateButton} disabled={loading}>
                     {loading ? "Changing..." : "Change Password"}

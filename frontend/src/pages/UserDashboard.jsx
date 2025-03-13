@@ -1,37 +1,26 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { getUserProfile, updateUserProfile, updatePassword, logout } from "../features/auth/authSlice";
+import { useNavigate } from 'react-router-dom'
+import { logout, updateUserProfileAction, updateUserPasswordAction } from "../features/auth/authSlice.jsx";
 
 const UserDashboard = () => {
+    const { user, loading, error } = useSelector((state) => state.auth);
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { user, loading, error } = useSelector((state) => state.auth);
-
     const [name, setName] = useState(user?.name || "");
     const [email, setEmail] = useState(user?.email || "");
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [message, setMessage] = useState("");
 
-    useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (!storedUser) {
-            navigate("/login");  // Redirect if no user is found
-        } else {
-            dispatch(getUserProfile());
-        }
-    }, [dispatch, navigate]);
-
-    // Handle profile update (name & email)
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
-        const resultAction = await dispatch(updateUserProfile({ name, email }));
+        const resultAction = await dispatch(updateUserProfileAction({ name, email }));
 
-        if (updateUserProfile.fulfilled.match(resultAction)) {
+        if (updateUserProfileAction.fulfilled.match(resultAction)) {
             const updatedUser = { ...user, name, email }; // Update local user data
             localStorage.setItem("user", JSON.stringify(updatedUser)); // Store updated user data
-            dispatch({ type: "auth/updateUser", payload: updatedUser }); // Update Redux state
+            dispatch({ type: "auth/updatedUser", payload: updatedUser }); // Update user data in Redux state
             setMessage("Profile updated successfully!");
         }
     };
@@ -39,7 +28,7 @@ const UserDashboard = () => {
     // Handle password change
     const handlePasswordChange = (e) => {
         e.preventDefault();
-        dispatch(updatePassword({ currentPassword, newPassword })).then((res) => {
+        dispatch(updateUserPasswordAction({ currentPassword, newPassword })).then((res) => {
             if (res.meta.requestStatus === "fulfilled") {
                 setMessage("Password updated successfully");
                 setCurrentPassword("");
@@ -51,15 +40,15 @@ const UserDashboard = () => {
     // Handle logout
     const handleLogout = () => {
         dispatch(logout());
-        navigate("/login"); // Redirect to login after logout
+        navigate('/')
     };
 
     return (
         <div style={styles.container}>
             <h2 style={styles.title}>User Profile</h2>
             {user && (
-                <div style={{ marginBottom: '20px', color: '#a0aec0' }}>
-                    <p>Name: {user.name}</p>
+                <div style={{ marginBottom: '20px', color: 'white' }}>
+                    <p>Name: <strong>{user.name}</strong> </p>
                     <p>Email: {user.email}</p>
                 </div>
             )}            {loading && <p>Loading...</p>}
@@ -68,21 +57,21 @@ const UserDashboard = () => {
 
             {/* Update Name & Email Form */}
             <form onSubmit={handleProfileUpdate} style={styles.form}>
-                <input 
-                    type="text" 
-                    value={name} 
-                    onChange={(e) => setName(e.target.value)} 
-                    placeholder="Name" 
-                    style={styles.input} 
-                    required 
+                <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Name"
+                    style={styles.input}
+                    required
                 />
-                <input 
-                    type="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    placeholder="Email" 
-                    style={styles.input} 
-                    required 
+                <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    style={styles.input}
+                    required
                 />
                 <button type="submit" style={styles.updateButton} disabled={loading}>
                     {loading ? "Updating..." : "Update Profile"}
@@ -92,21 +81,21 @@ const UserDashboard = () => {
             {/* Password Change Form */}
             <h3 style={styles.subtitle}>Change Password</h3>
             <form onSubmit={handlePasswordChange} style={styles.form}>
-                <input 
-                    type="password" 
-                    placeholder="Current Password" 
-                    style={styles.input} 
-                    value={currentPassword} 
-                    onChange={(e) => setCurrentPassword(e.target.value)} 
-                    required 
+                <input
+                    type="password"
+                    placeholder="Current Password"
+                    style={styles.input}
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    required
                 />
-                <input 
-                    type="password" 
-                    placeholder="New Password" 
-                    style={styles.input} 
-                    value={newPassword} 
-                    onChange={(e) => setNewPassword(e.target.value)} 
-                    required 
+                <input
+                    type="password"
+                    placeholder="New Password"
+                    style={styles.input}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
                 />
                 <button type="submit" style={styles.updateButton} disabled={loading}>
                     {loading ? "Changing..." : "Change Password"}

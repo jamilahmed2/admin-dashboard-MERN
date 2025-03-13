@@ -1,10 +1,9 @@
 import express from 'express';
 
-import { getUserProfile, updateProfile,updatePassword } from '../controller/userController.js'
+import { updateProfile,updatePassword } from '../controller/userController.js'
 import { protect } from '../middleware/authMiddleware.js'
 const router = express.Router();
 
-router.get("/profile", protect, getUserProfile);
 router.put("/update-profile", protect, updateProfile);
 router.put("/update-password", protect, updatePassword);
 

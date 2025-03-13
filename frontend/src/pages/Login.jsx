@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../features/auth/authSlice.jsx";
+import { loginUser } from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 
 // Add these styles in a separate CSS file or use inline styles
